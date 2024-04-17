@@ -47,7 +47,7 @@ BEGIN
 											D.Accounts_Name			  ,
 											C.Account_Id 
 									from 
-											DailyAccountBalance A 
+											Daily_Account_Balance A 
 									inner join 
 											Accounts_Id B 
 									on 
@@ -149,7 +149,7 @@ BEGIN
 							B.Description,
 							SUM(A.Balance) 			as Amount
 					from 
-							DailyAccountBalance A 
+							Daily_Account_Balance A 
 					Right join 
 							Accounts_Id B 
 					on 
@@ -223,7 +223,7 @@ BEGIN
 							  ID           is null And
 							  ACC_ID	   is null And 
 							  DESCRIPTION  is null And 
-							  AMOUNT 	   is not null,
+							  AMOUNT 	   is not null
 							)
 							
 					union all 
