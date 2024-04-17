@@ -64,7 +64,7 @@ BEGIN
 											case 
 												when 
 													P_ENTRY_DATE_TO <> "" then 
-													A.ENTRYDATE <= Convert(P_ENTRY_DATE_TO,Date)
+													A.ENTRYDATE <= DATE(P_ENTRY_DATE_TO)
 													else true
 											end
 									and 
@@ -171,7 +171,7 @@ BEGIN
 					And 
 							case 
 								when 
-									P_ENTRY_DATE_TO <> "" then A.ENTRYDATE <= P_ENTRY_DATE_TO
+									P_ENTRY_DATE_TO <> "" then A.ENTRYDATE <= DATE(P_ENTRY_DATE_TO)
 									else true 
 								end 
 					AND 
