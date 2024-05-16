@@ -2,20 +2,20 @@
 drop procedure if Exists PROC_BALANCE_SHEET;
 DELIMITER $$
 CREATE  PROCEDURE `PROC_BALANCE_SHEET`( P_ENTRY_DATE_FROM TEXT,
-										P_ENTRY_DATE_TO TEXT,
-										P_YEAR TEXT,
-										P_COMPANY_ID INT )
+					P_ENTRY_DATE_TO TEXT,
+					P_YEAR TEXT,
+					P_COMPANY_ID INT )
 BEGIN
 
-				Declare IncomeAmount  		Decimal default 0;
+				Declare IncomeAmount		Decimal default 0;
 				Declare CostAmount    		Decimal default 0;
 				Declare ExpenseAmount 		Decimal default 0;
 				Declare AssetAmount   		Decimal default 0;
 				Declare LiabilityAmount 	Decimal default 0;
 				Declare EquityAmount 		Decimal default 0;
 				Declare GrossProfit 		Decimal default 0;
-				Declare EquityType          Decimal default 0;
-				Declare TOTAL_L_E			Decimal Default 0;
+				Declare EquityType              Decimal default 0;
+				Declare TOTAL_L_E		Decimal Default 0;
 			
 				select 
 						SUM(A.Income)   ,
@@ -42,9 +42,9 @@ BEGIN
 						from (
 									select 
 											SUM(A.Balance) as Balance ,
-											A.AccountId	   			  ,
-											B.ACC_ID	   			  ,
-											D.Accounts_Name			  ,
+											A.AccountId,
+											B.ACC_ID,
+											D.Accounts_Name,
 											C.Account_Id 
 									from 
 											Daily_Account_Balance A 
@@ -64,7 +64,7 @@ BEGIN
 											case 
 												when 
 													P_ENTRY_DATE_TO <> "" then 
-													A.ENTRYDATE < DATE(P_ENTRY_DATE_TO)
+													A.ENTRYDATE <= DATE(P_ENTRY_DATE_TO)
 													else true
 											end
 									and 
@@ -100,14 +100,14 @@ BEGIN
 							EquityType
 					FROM 
 							Accounts_Id D,
-						    Account_Type E
+						    	Account_Type E
 					WHERE 
 						   CASE
-								WHEN P_COMPANY_ID <> "" THEN D.COMPANY_ID = P_COMPANY_ID
-								ELSE TRUE
+							WHEN P_COMPANY_ID <> "" THEN D.COMPANY_ID = P_COMPANY_ID
+							ELSE TRUE
 						   END 
-					   AND D.Account_Type_Id = E.Id
-					   AND E.Account_Id = 6 
+					AND D.Account_Type_Id = E.Id
+					AND E.Account_Id = 6 
     				   ORDER BY E.Id DESC LIMIT 1;
                   
 					-- ===================== EQUITY TYPE =====================
@@ -133,7 +133,7 @@ BEGIN
 							G.ACCOUNT,
 							G.ACCOUNT_TYPE_ID,
 							G.ACCOUNT_TYPE, 
-                            G.ID,
+                            				G.ID,
 							G.ACC_ID, 
 							G.DESCRIPTION, 
 							SUM(G.AMOUNT) AS AMOUNT
@@ -142,8 +142,8 @@ BEGIN
 					select 
 							
 							D.Accounts_Name 		as Account,
-							C.id 					as Account_Type_Id,
-							C.Account_Type_Name 	as Account_Type,
+							C.id 				as Account_Type_Id,
+							C.Account_Type_Name 		as Account_Type,
 							B.id,
 							B.ACC_ID,
 							B.Description,
@@ -171,7 +171,7 @@ BEGIN
 					And 
 							case 
 								when 
-									P_ENTRY_DATE_TO <> "" then A.ENTRYDATE < DATE(P_ENTRY_DATE_TO)
+									P_ENTRY_DATE_TO <> "" then A.ENTRYDATE <= DATE(P_ENTRY_DATE_TO)
 									else true 
 								end 
 					AND 
@@ -189,13 +189,13 @@ BEGIN
 					UNION ALL
                                         
                     SELECT 
-							"EQUITY" 			  AS ACCOUNT,
-							 EquityType 		  AS ACCOUNT_TYPE_ID,
-							"EQUITY" 			  AS ACCOUNT_TYPE,
-							"-1"				  AS ID,
-							"-1" 				  AS ACC_ID,
-							"NET PROFIT" 		  AS DESCRIPTION,
-							GrossProfit 		  AS AMOUNT
+							"EQUITY" 	AS ACCOUNT,
+							 EquityType 	AS ACCOUNT_TYPE_ID,
+							"EQUITY" 	AS ACCOUNT_TYPE,
+							"-1"		AS ID,
+							"-1" 		AS ACC_ID,
+							"NET PROFIT" 	AS DESCRIPTION,
+							GrossProfit 	AS AMOUNT
 					) G
 					group by 
 							G.ACCOUNT,
@@ -207,35 +207,35 @@ BEGIN
 					with RollUp 
 					HAVING 
 							(
-							  Account 	   is not null And
+							  Account      is not null And
 							  ACCOUNT_TYPE is not null And  
 							  ID           is not null And
-							  ACC_ID	   is not null And 
+							  ACC_ID       is not null And 
 							  DESCRIPTION  is not null And 
-							  AMOUNT 	   is not null
+							  AMOUNT       is not null
 								
 							)
 					OR 
 								  
 							(
-							  Account 	   is not null AND
+							  Account      is not null AND
 							  ACCOUNT_TYPE is null And  
 							  ID           is null And
-							  ACC_ID	   is null And 
+							  ACC_ID       is null And 
 							  DESCRIPTION  is null And 
-							  AMOUNT 	   is not null
+							  AMOUNT       is not null
 							)
 							
 					union all 
 					
 					SELECT 
 								"" AS ACCOUNT,
-                        "99999999" AS ACCOUNT_TYPE_ID,
-						"99999999" AS ACCOUNT_TYPE,
-                                "" AS ID,
-                                "" AS ACC_ID,
-      "Total Liability and Equity" AS ACCOUNT,
-						 TOTAL_L_E AS AMOUNT ) as V;
+                        				"99999999" AS ACCOUNT_TYPE_ID,
+							"99999999" AS ACCOUNT_TYPE,
+                                				"" AS ID,
+                                				"" AS ACC_ID,
+      				      "Total Liability and Equity" AS ACCOUNT,
+						 	 TOTAL_L_E AS AMOUNT ) as V;
 					
 	
 	
