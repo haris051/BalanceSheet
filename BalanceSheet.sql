@@ -6,7 +6,7 @@ CREATE PROCEDURE `PROC_BALANCE_SHEET`( P_ENTRY_DATE_FROM TEXT,
 					P_COMPANY_ID INT )
 BEGIN
 
-				Declare IncomeAmount		Decimal(22,2) default 0;
+	Declare IncomeAmount		Decimal(22,2) default 0;
 	Declare CostAmount    		Decimal(22,2) default 0;
 	Declare ExpenseAmount 		Decimal(22,2) default 0;
 	Declare AssetAmount   		Decimal(22,2) default 0;
@@ -166,9 +166,10 @@ BEGIN
 										from (
 										SELECT 
 												G.SortingOrder,
+												G.ACCOUNT_TYPE,
 												G.ACCOUNT,
 												G.ACCOUNT_TYPE_ID,
-												G.ACCOUNT_TYPE, 
+												
 												G.ID,
 												G.ACC_ID, 
 												G.DESCRIPTION, 
@@ -181,8 +182,8 @@ BEGIN
 										   
 												SELECT 
 														G.ACCOUNT,
+                                                        G.ACCOUNT_TYPE,
 														G.ACCOUNT_TYPE_ID,
-														G.ACCOUNT_TYPE, 
 														G.ID,
 														G.ACC_ID, 
 														G.DESCRIPTION, 
@@ -259,9 +260,9 @@ BEGIN
 													) G
 										group by 
 												G.SortingOrder,
-												G.ACCOUNT,
+                                                G.ACCOUNT_TYPE,
+                                                G.ACCOUNT,
 												G.ACCOUNT_TYPE_ID,
-												G.ACCOUNT_TYPE, 
 												G.ID,
 												G.ACC_ID, 
 												G.DESCRIPTION
@@ -269,9 +270,10 @@ BEGIN
 										HAVING 
 												(
 												  G.SortingOrder is not null And
+                                                  G.ACCOUNT_TYPE is not null And  
 												  G.Account      is not null And
 												  G.Account_Type_ID is not null And 
-												  G.ACCOUNT_TYPE is not null And  
+												  
 												  G.ID           is not null And
 												  G.ACC_ID       is not null And 
 												  G.DESCRIPTION  is not null And 
@@ -281,9 +283,10 @@ BEGIN
 										OR 		
 												(
 												  G.SortingOrder is not null And
+                                                  G.Account_TYPE is not null AND 
 												  G.Account      is not null And
 												  G.ACCOUNT_TYPE_ID is not null And
-												  G.Account_TYPE is  null    AND 
+												  
 												  G.ID           is  null And
 												  G.ACC_ID       is  null And 
 												  G.DESCRIPTION  is  null And 
@@ -293,17 +296,17 @@ BEGIN
 											OR 		
 												(
 												  G.SortingOrder is not null And
+                                                  G.Account_TYPE is  null    AND 
 												  G.Account      is  null And
 												  G.ACCOUNT_TYPE_ID is null And
-												  G.Account_TYPE is  null    AND 
+												  
 												  G.ID           is  null And
 												  G.ACC_ID       is  null And 
 												  G.DESCRIPTION  is  null And 
 												  AMOUNT       is not null
 													
 												)
-										
-												
+                                                
 												union all 
 										
 												SELECT 
@@ -311,8 +314,8 @@ BEGIN
 											"Total Liability and Equity" AS ACCOUNT,
 											"99999999" AS ACCOUNT_TYPE_ID,
 											"99999999" AS ACCOUNT_TYPE,
-													NULL AS ID,
-													NULL AS ACC_ID,
+											"99999999" AS ID,
+											null AS ACC_ID,
 						  "Total Liability and Equity" AS DESCRIPTION,
 								  Round(cast(IFNULL(TOTAL_L_E,0) as Decimal(22,2)),2) AS AMOUNT,
 								   NULL AS Count_Accounts
@@ -335,17 +338,17 @@ BEGIN
 			  
 			End if;
 
-			if Var_Account_Type is null and Var_Account is not null 
+			if Var_ID is null and Var_Account is not null 
 			then 
 				Set Var_Previous_Count = Var_Count_Accounts;
 			End if;
 
-			if Var_Account_Type is null and Var_Account is null 
+			if Var_ID is null and Var_Account is null 
 			then 
 				Set Var_Currect_Count = Var_Count_Accounts;
 			End if;
 
-			if Var_Account_Type is not null and Var_Account is not null
+			if Var_ID is not null and Var_Account is not null
 			then 
 				 insert into Balance_Sheet select Var_Account,Var_Account_Type,Var_ID,Var_ACC_ID,Var_Description,Var_Amount;
 			else 
@@ -359,14 +362,10 @@ BEGIN
 
 			close BalanceSheet;					
 								
-			select *,Count(*) OVER() as TOTAL_ROWS from Balance_Sheet;
+			select *,Count(*) OVER() as TOTAL_ROWS from Balance_Sheet where Amount <> 0;
 			drop temporary table if exists Balance_Sheet;
 							
 		End Main;
-					
-					
-	
-	
-    
+
 END $$
 DELIMITER ;
